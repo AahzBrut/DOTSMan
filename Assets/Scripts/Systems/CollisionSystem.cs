@@ -1,7 +1,9 @@
+using System.Linq;
 using Components;
 using Unity.Entities;
 using Unity.Physics;
 using Unity.Physics.Systems;
+using UnityEngine;
 
 namespace Systems
 {
@@ -46,7 +48,7 @@ namespace Systems
         {
             Entities.ForEach((DynamicBuffer<TriggerBuffer> triggers) => { triggers.Clear(); }).Run();
 
-            new TriggerSystemJob
+            Dependency = new TriggerSystemJob
             {
                 Triggers = GetBufferFromEntity<TriggerBuffer>()
             }.Schedule(simulation, ref physicsWorld, Dependency);
@@ -56,7 +58,7 @@ namespace Systems
         {
             Entities.ForEach((DynamicBuffer<CollisionBuffer> collisions) => { collisions.Clear(); }).Run();
 
-            new CollisionSystemJob
+            Dependency = new CollisionSystemJob
             {
                 Collisions = GetBufferFromEntity<CollisionBuffer>()
             }.Schedule(simulation, ref physicsWorld, Dependency);

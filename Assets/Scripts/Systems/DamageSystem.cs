@@ -46,7 +46,7 @@ namespace Systems
             {
                 for (var i = 0; i < collisionBuffers.Length; i++)
                 {
-                    if (!(healthComponent.InvincibleTimer <= 0) ||
+                    if (healthComponent.InvincibleTimer > 0 ||
                         !HasComponent<DamageComponent>(collisionBuffers[i].Entity)) continue;
 
                     healthComponent.Health -= GetComponent<DamageComponent>(collisionBuffers[i].Entity).Damage;
