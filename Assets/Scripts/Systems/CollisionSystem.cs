@@ -1,9 +1,7 @@
-using System;
+using Components;
 using Unity.Entities;
 using Unity.Physics;
 using Unity.Physics.Systems;
-using UnityEngine;
-using Collision = Components.Collision;
 
 namespace Systems
 {
@@ -11,35 +9,56 @@ namespace Systems
     {
         private struct CollisionSystemJob : ICollisionEventsJob
         {
-            public BufferFromEntity<Collision> Collisions;
+            public BufferFromEntity<CollisionBuffer> Collisions;
 
             public void Execute(CollisionEvent collisionEvent)
             {
-                Debug.Log("In CollisionSystemJob.Execute()");
                 if (Collisions.HasComponent(collisionEvent.EntityA))
-                    Collisions[collisionEvent.EntityA].Add(new Collision {Entity = collisionEvent.EntityB});
+                    Collisions[collisionEvent.EntityA].Add(new CollisionBuffer {Entity = collisionEvent.EntityB});
                 if (Collisions.HasComponent(collisionEvent.EntityB))
-                    Collisions[collisionEvent.EntityB].Add(new Collision {Entity = collisionEvent.EntityA});
+                    Collisions[collisionEvent.EntityB].Add(new CollisionBuffer {Entity = collisionEvent.EntityA});
             }
         }
 
         private struct TriggerSystemJob : ITriggerEventsJob
         {
+            public BufferFromEntity<TriggerBuffer> Triggers;
+
             public void Execute(TriggerEvent triggerEvent)
             {
-                throw new NotImplementedException();
+                if (Triggers.HasComponent(triggerEvent.EntityA))
+                    Triggers[triggerEvent.EntityA].Add(new TriggerBuffer {Entity = triggerEvent.EntityB});
+                if (Triggers.HasComponent(triggerEvent.EntityB))
+                    Triggers[triggerEvent.EntityB].Add(new TriggerBuffer {Entity = triggerEvent.EntityA});
             }
         }
 
         protected override void OnUpdate()
         {
-            Debug.Log("In CollisionSystem.OnUpdate()");
             var physicsWorld = World.GetOrCreateSystem<BuildPhysicsWorld>().PhysicsWorld;
             var simulation = World.GetOrCreateSystem<StepPhysicsWorld>().Simulation;
 
-            var jobHandle = new CollisionSystemJob
+            HandleCollisions(simulation, physicsWorld);
+            HandleTriggers(simulation, physicsWorld);
+        }
+
+        private void HandleTriggers(ISimulation simulation, PhysicsWorld physicsWorld)
+        {
+            Entities.ForEach((DynamicBuffer<TriggerBuffer> triggers) => { triggers.Clear(); }).Run();
+
+            new TriggerSystemJob
             {
-                Collisions = GetBufferFromEntity<Collision>()
+                Triggers = GetBufferFromEntity<TriggerBuffer>()
+            }.Schedule(simulation, ref physicsWorld, Dependency);
+        }
+
+        private void HandleCollisions(ISimulation simulation, PhysicsWorld physicsWorld)
+        {
+            Entities.ForEach((DynamicBuffer<CollisionBuffer> collisions) => { collisions.Clear(); }).Run();
+
+            new CollisionSystemJob
+            {
+                Collisions = GetBufferFromEntity<CollisionBuffer>()
             }.Schedule(simulation, ref physicsWorld, Dependency);
         }
     }

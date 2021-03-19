@@ -1,10 +1,9 @@
 using Unity.Entities;
-using Unity.Mathematics;
 
 namespace Components
 {
     [GenerateAuthoringComponent]
-    public struct Collision : IBufferElementData
+    public struct CollisionBuffer : IBufferElementData
     {
         public Entity Entity;
     }
