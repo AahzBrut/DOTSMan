@@ -1,6 +1,5 @@
-using System.Diagnostics.CodeAnalysis;
 using Components;
-using UI;
+using MonoBeh;
 using Unity.Collections;
 using Unity.Entities;
 
@@ -8,7 +7,6 @@ namespace Systems
 {
     public class CollectionSystem : SystemBase
     {
-        [SuppressMessage("ReSharper", "All")] // suppress NativeArray inspection
         protected override void OnUpdate()
         {
             var entityCommandBuffer =
@@ -17,7 +15,7 @@ namespace Systems
 
             Entities
                 .WithAll<Player>()
-                .ForEach((Entity playerEntity, DynamicBuffer<TriggerBuffer> triggerBuffers) =>
+                .ForEach((in Entity playerEntity, in DynamicBuffer<TriggerBuffer> triggerBuffers) =>
                 {
                     for (var i = 0; i < triggerBuffers.Length; i++)
                     {
@@ -27,6 +25,7 @@ namespace Systems
                         if (HasComponent<Collectable>(pillEntity))
                         {
                             entityCommandBuffer.AddComponent(pillEntity, new KillComponent {DelayTimer = 0});
+                            // ReSharper disable once AccessToDisposedClosure
                             addedPoints[0] += GetComponent<Collectable>(pillEntity).points;
                         }
 

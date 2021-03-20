@@ -1,4 +1,6 @@
 using Components;
+using MonoBeh;
+using Unity.Collections;
 using Unity.Entities;
 
 namespace Systems
@@ -19,12 +21,28 @@ namespace Systems
 
         private void KillDeadEntities(float deltaTime, EntityCommandBuffer entityCommandBuffer)
         {
+            var deathClips = new NativeList<FixedString32>(10, Allocator.TempJob);
+
             Entities.ForEach((Entity entity, ref KillComponent killComponent) =>
             {
                 killComponent.DelayTimer -= deltaTime;
-                if (killComponent.DelayTimer <= 0)
-                    entityCommandBuffer.DestroyEntity(entity);
+                if (killComponent.DelayTimer > 0) return;
+
+                if (HasComponent<KillEvent>(entity))
+                    // ReSharper disable once AccessToDisposedClosure
+                    deathClips.Add(GetComponent<KillEvent>(entity).ClipName);
+
+                entityCommandBuffer.DestroyEntity(entity);
             }).Schedule();
+
+            Dependency.Complete();
+
+            foreach (var clipName in deathClips)
+            {
+                AudioManager.Instance.PlaySfxRequest(clipName.ToString());
+            }
+
+            deathClips.Dispose();
         }
 
         private void InflictDamage(float deltaTime, EntityCommandBuffer entityCommandBuffer)
