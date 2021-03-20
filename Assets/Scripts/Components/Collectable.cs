@@ -5,6 +5,6 @@ namespace Components
     [GenerateAuthoringComponent]
     public struct Collectable : IComponentData
     {
-        public float points;
+        public int points;
     }
 }

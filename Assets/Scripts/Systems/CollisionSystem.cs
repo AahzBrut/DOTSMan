@@ -1,9 +1,7 @@
-using System.Linq;
 using Components;
 using Unity.Entities;
 using Unity.Physics;
 using Unity.Physics.Systems;
-using UnityEngine;
 
 namespace Systems
 {

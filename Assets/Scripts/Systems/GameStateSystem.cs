@@ -1,6 +1,6 @@
 using Components;
+using UI;
 using Unity.Entities;
-using UnityEngine;
 
 namespace Systems
 {
@@ -10,8 +10,15 @@ namespace Systems
         protected override void OnUpdate()
         {
             var pelletQuery = GetEntityQuery(ComponentType.ReadOnly<Pellet>());
+
+            if (pelletQuery.CalculateEntityCount() <= 0)
+                GameManager.Instance.Win();
+
+            var playerQuery = GetEntityQuery(ComponentType.ReadOnly<Player>());
             
-            Debug.Log($"Number of pellets left: {pelletQuery.CalculateEntityCount()}");
+            if (playerQuery.CalculateEntityCount() <= 0)
+                GameManager.Instance.Loose();
+
         }
     }
 }
