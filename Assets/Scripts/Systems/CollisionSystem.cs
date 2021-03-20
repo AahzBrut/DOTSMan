@@ -40,6 +40,7 @@ namespace Systems
 
             HandleCollisions(simulation, physicsWorld);
             HandleTriggers(simulation, physicsWorld);
+            Dependency.Complete();
         }
 
         private void HandleTriggers(ISimulation simulation, PhysicsWorld physicsWorld)
