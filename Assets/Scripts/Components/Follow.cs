@@ -4,6 +4,7 @@ using Unity.Mathematics;
 namespace Components
 {
     [GenerateAuthoringComponent]
+    // ReSharper disable UnassignedField.Global
     public struct Follow : IComponentData
     {
         public Entity Target;
